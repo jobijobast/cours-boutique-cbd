@@ -1,4 +1,7 @@
 import { buildSystemPrompt } from "@/lib/advisor/prompt";
+import { buildSavPrompt } from "@/lib/advisor/sav";
+
+type Mode = "conseil" | "sav";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,6 +18,10 @@ const REMINDER =
   "Une seule question par message, suivie de [[choix: … | …]]. Débutant : recommande seulement [[huile-cbd-10-spearmint]], [[bonhomme-de-neige]], [[dry-sift]] ou [[purple-punch]], jamais [[static-mango]], [[sweet-soy]] ni [[ice-o-lator]]. " +
   "Si la personne parle de santé, de traitement, de grossesse ou d'allaitement : dis que tu ne peux pas donner d'avis médical et invite-la à en parler à un médecin ou un pharmacien. " +
   "Aucun emoji, aucune allégation de santé, aucune recette ni usage culinaire.]";
+
+const SAV_REMINDER =
+  "[Rappel interne, ne pas citer : tu es le service après-vente Sève. Réponds directement à la question avec la politique de la boutique, sans rien inventer (pas de numéro de commande, de téléphone ni de statut de colis). " +
+  "Hors sujet boutique : refuse en une phrase. Choix de produit : renvoie vers [[lien: /quiz | Trouver mon CBD]]. Santé ou grossesse : pas d'avis médical, renvoie vers un médecin ou un pharmacien. Aucun emoji, 80 mots maximum.]";
 
 /** Modèle principal puis replis si le plan est saturé (429) ou indisponible */
 function models() {
@@ -34,12 +41,12 @@ function sanitize(input: unknown): ChatMessage[] | null {
   return clean[clean.length - 1].role === "user" ? clean : null;
 }
 
-async function callMistral(messages: ChatMessage[], key: string): Promise<{ res: Response | null; model?: string }> {
+async function callMistral(messages: ChatMessage[], key: string, mode: Mode): Promise<{ res: Response | null; model?: string }> {
   let last: Response | null = null;
   for (const model of models()) {
     for (let attempt = 0; attempt < 2; attempt++) {
       const withReminder = messages.map((m, i) =>
-        i === messages.length - 1 ? { ...m, content: `${m.content}\n\n${REMINDER}` } : m
+        i === messages.length - 1 ? { ...m, content: `${m.content}\n\n${mode === "sav" ? SAV_REMINDER : REMINDER}` } : m
       );
       const res = await fetch(ENDPOINT, {
         method: "POST",
@@ -50,7 +57,10 @@ async function callMistral(messages: ChatMessage[], key: string): Promise<{ res:
           temperature: 0.3,
           max_tokens: 450,
           safe_prompt: true,
-          messages: [{ role: "system", content: buildSystemPrompt() }, ...withReminder],
+          messages: [
+            { role: "system", content: mode === "sav" ? buildSavPrompt() : buildSystemPrompt() },
+            ...withReminder,
+          ],
         }),
       });
       if (res.ok && res.body) return { res, model };
@@ -77,14 +87,15 @@ export async function POST(req: Request) {
   const messages = sanitize((body as { messages?: unknown })?.messages);
   if (!messages) return Response.json({ error: "Requête invalide." }, { status: 400 });
 
-  const { res: upstream, model } = await callMistral(messages, key);
+  const mode: Mode = (body as { mode?: unknown })?.mode === "sav" ? "sav" : "conseil";
+  const { res: upstream, model } = await callMistral(messages, key, mode);
   if (!upstream || !upstream.ok || !upstream.body) {
     const busy = upstream?.status === 429;
     return Response.json(
       {
         error: busy
-          ? "Le conseiller est très demandé en ce moment. Réessayez dans quelques secondes."
-          : "Le conseiller est momentanément indisponible. Réessayez dans un instant.",
+          ? "Le service est très demandé en ce moment. Réessayez dans quelques secondes."
+          : "Le service est momentanément indisponible. Réessayez dans un instant.",
       },
       { status: busy ? 429 : 502 }
     );

@@ -8,17 +8,16 @@ import { cn } from "@/lib/cn";
 import { ChatComposer, ChatMessages, useAdvisorChat } from "./chat";
 
 const SUGGESTIONS = [
-  "Je veux me détendre ce soir",
-  "J'adore les saveurs fruitées",
-  "Je débute avec le CBD",
-  "Une idée à moins de 15 €",
+  "Quels sont les délais de livraison ?",
+  "Puis-je retourner un produit ?",
+  "Le paiement est-il sécurisé ?",
+  "Comment lire une analyse labo ?",
 ];
 
 export const ADVISOR_INTRO = (
   <p>
-    Bonjour, je suis le conseiller Sève. Dites-moi votre <strong className="font-semibold">humeur</strong>, le{" "}
-    <strong className="font-semibold">moment</strong> et les <strong className="font-semibold">saveurs</strong> que vous
-    aimez : je vous propose le produit le plus adapté.
+    Bonjour, je suis le <strong className="font-semibold">service après-vente</strong> de Sève. Livraison, paiement,
+    retours, analyses de laboratoire : posez-moi votre question, je vous réponds simplement et en toute transparence.
   </p>
 );
 
@@ -37,7 +36,7 @@ export function AdvisorPanel({
 }) {
   const pathname = usePathname();
   const reduce = useReducedMotion();
-  const chat = useAdvisorChat("seve-advisor");
+  const chat = useAdvisorChat("seve-sav", "sav");
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -72,7 +71,7 @@ export function AdvisorPanel({
 
   // Pas de lanceur sur la page « Trouver mon CBD » (le conseiller y est intégré),
   // ni sur mobile là où une barre d'action fixe occupe le bas de l'écran
-  const onQuiz = pathname.startsWith("/quiz");
+  const onQuiz = false;
   const crowded = /^\/(panier|paiement|confirmation|produit)/.test(pathname);
 
   return (
@@ -105,7 +104,7 @@ export function AdvisorPanel({
               )}
               <Sparkles aria-hidden className="size-4" strokeWidth={2} />
             </span>
-            Conseiller IA
+            Service client
           </motion.button>
         )}
       </AnimatePresence>
@@ -123,7 +122,7 @@ export function AdvisorPanel({
             />
             <motion.section
               role="dialog"
-              aria-label="Conseiller Sève"
+              aria-label="Service après-vente Sève"
               initial={reduce ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={reduce ? { opacity: 0 } : { opacity: 0, y: 30, scale: 0.97 }}
@@ -141,8 +140,8 @@ export function AdvisorPanel({
                   <span aria-hidden className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-surface bg-success" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <h2 className="font-display text-[18px] leading-tight">Conseiller Sève</h2>
-                  <p className="text-[12px] text-muted">IA · selon vos goûts et votre humeur du moment</p>
+                  <h2 className="font-display text-[18px] leading-tight">Service après-vente</h2>
+                  <p className="text-[12px] text-muted">Réponses rapides · livraison, paiement, retours</p>
                 </div>
                 <button
                   type="button"
@@ -158,7 +157,7 @@ export function AdvisorPanel({
                 <button
                   type="button"
                   onClick={onClose}
-                  aria-label="Fermer le conseiller"
+                  aria-label="Fermer le service client"
                   className="grid size-11 place-items-center rounded-full text-ink transition-colors hover:bg-action-tint"
                 >
                   <X aria-hidden className="size-5" strokeWidth={2} />
@@ -176,7 +175,7 @@ export function AdvisorPanel({
               </div>
 
               <div className="border-t border-line bg-surface px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-3">
-                <ChatComposer chat={chat} inputRef={inputRef} />
+                <ChatComposer chat={chat} inputRef={inputRef} placeholder="Ex. : sous quel délai suis-je livré ?" note="Assistant IA : pour une demande précise sur une commande, répondez à l'e-mail de suivi. Pas d'avis médical." />
               </div>
             </motion.section>
           </>

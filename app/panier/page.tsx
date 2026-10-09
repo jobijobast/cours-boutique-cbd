@@ -40,7 +40,7 @@ export default function PanierPage() {
         <p role="status" className="text-muted">
           {justCleared
             ? "Les articles ont bien été retirés."
-            : "Trouvez le produit adapté à votre routine en 3 questions, ou parcourez la boutique."}
+            : "Trouvez le produit adapté à votre routine en 3 questions, ou parcourez nos produits."}
         </p>
         <ButtonLink href="/boutique" icon={ArrowRight} iconPosition="end" size="lg" className="w-full sm:w-auto">
           Découvrir nos produits

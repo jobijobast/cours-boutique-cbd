@@ -7,7 +7,7 @@ export default function NotFound() {
       <h1 className="text-title">Page introuvable</h1>
       <p className="text-muted">Cette page n&apos;existe pas ou a été déplacée. Votre panier est intact.</p>
       <ButtonLink href="/boutique" icon={ArrowRight} iconPosition="end">
-        Retour à la boutique
+        Voir nos produits
       </ButtonLink>
     </div>
   );

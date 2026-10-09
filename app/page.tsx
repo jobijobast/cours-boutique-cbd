@@ -72,7 +72,7 @@ export default function HomePage() {
             href="/boutique"
             className="group inline-flex min-h-11 items-center gap-1.5 font-semibold text-ink underline-offset-4 hover:underline"
           >
-            Toute la boutique
+            Tous nos produits
             <ArrowRight aria-hidden className="size-5 transition-transform duration-200 group-hover:translate-x-1" strokeWidth={2} />
           </Link>
         </Reveal>

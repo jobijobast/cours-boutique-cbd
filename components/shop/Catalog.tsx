@@ -7,7 +7,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { FilterChip } from "@/components/ui/FilterChip";
-import { useAdvisor } from "@/components/advisor/AdvisorProvider";
 import { CATEGORY_LABELS, catalog, EDGE, getProduct, rankProducts, type Category } from "@/lib/data/products";
 import { parseDemoState, rememberEdge } from "@/lib/demo";
 import { readAnswers, recapOf, type QuizAnswers } from "@/lib/quiz";
@@ -60,7 +59,6 @@ export function Catalog({ mode }: { mode: Mode }) {
   const [category, setCategory] = useState<Category | "all">("all");
   const [sort, setSort] = useState<SortValue>("reco");
   const [demoFilters, setDemoFilters] = useState<string[]>(demo === "empty" ? DEMO_EMPTY_FILTERS : []);
-  const advisor = useAdvisor();
 
   // Chargement simulé + états de démo
   useEffect(() => {
@@ -121,7 +119,7 @@ export function Catalog({ mode }: { mode: Mode }) {
         items={
           mode === "results"
             ? [{ href: "/", label: "Accueil" }, { href: "/quiz", label: "Trouver mon CBD" }, { label: "Résultats" }]
-            : [{ href: "/", label: "Accueil" }, { label: "Boutique" }]
+            : [{ href: "/", label: "Accueil" }, { label: "Nos produits" }]
         }
       />
 
@@ -141,7 +139,7 @@ export function Catalog({ mode }: { mode: Mode }) {
           </>
         ) : (
           <>
-            <h1 className="text-title">{q ? `Résultats pour « ${q} »` : "Toute la boutique"}</h1>
+            <h1 className="text-title">{q ? `Résultats pour « ${q} »` : "Nos produits"}</h1>
             <p className="text-body text-muted">
               {base.length} produit{base.length > 1 ? "s" : ""}, chacun analysé par un laboratoire indépendant.
               {q && (
@@ -306,18 +304,18 @@ export function Catalog({ mode }: { mode: Mode }) {
           <span className="font-semibold">Besoin d&apos;aide pour choisir ?</span> Notre conseiller IA vous répond en
           quelques secondes, selon vos goûts et votre humeur du moment.
         </p>
-        <Button
+        <ButtonLink
+          href={
+            mode === "results"
+              ? `/quiz?q=${encodeURIComponent(`D'après mon quiz je suis : ${recapOf(answers)}. Que me conseillez-vous ?`)}`
+              : "/quiz"
+          }
           variant="secondary"
           icon={Sparkles}
-          onClick={() =>
-            advisor.open(
-              mode === "results" ? `D'après mon quiz je suis : ${recapOf(answers)}. Que me conseillez-vous ?` : undefined
-            )
-          }
           className="shrink-0"
         >
           Demander au conseiller
-        </Button>
+        </ButtonLink>
       </aside>
 
     </div>

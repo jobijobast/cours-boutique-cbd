@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { ButtonLink } from "@/components/ui/Button";
 import { formatPrice } from "@/lib/data/products";
+import { useAccount } from "@/lib/account";
 
 type Order = { number: string; total: number; email: string; livraison: "relais" | "domicile"; items: number };
 
@@ -37,6 +38,7 @@ function Burst() {
 
 export default function ConfirmationPage() {
   const [order, setOrder] = useState<Order | null>(null);
+  const { hydrated, account } = useAccount();
 
   useEffect(() => {
     try {
@@ -95,6 +97,23 @@ export default function ConfirmationPage() {
             <Package aria-hidden className="size-5 shrink-0" strokeWidth={2} />
             {order.livraison === "relais" ? "Point relais" : "À domicile"} · colis neutre, sans mention du contenu
           </p>
+        </div>
+      )}
+
+      {hydrated && !account && order && (
+        <div className="w-full rounded-lg border-2 border-dashed border-line bg-surface p-5 text-left">
+          <p className="font-semibold">Suivez cette commande depuis votre compte</p>
+          <p className="mt-1 text-[15px] text-muted">
+            Créez un compte avec {order.email} en 1 minute : cette commande y apparaîtra automatiquement. C&apos;est
+            facultatif.
+          </p>
+          <Link
+            href={`/compte?email=${encodeURIComponent(order.email)}`}
+            className="mt-2 inline-flex min-h-11 items-center gap-1.5 font-semibold text-ink underline underline-offset-4"
+          >
+            Créer mon compte
+            <ArrowRight aria-hidden className="size-4" strokeWidth={2} />
+          </Link>
         </div>
       )}
 

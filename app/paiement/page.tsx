@@ -10,6 +10,7 @@ import { Checkbox, Radio } from "@/components/ui/Controls";
 import { Field } from "@/components/ui/Field";
 import { ProductVisual } from "@/components/shop/ProductBits";
 import { useCart } from "@/lib/cart";
+import { saveOrder, useAccount } from "@/lib/account";
 import { cn } from "@/lib/cn";
 import { FREE_SHIPPING_THRESHOLD, formatPrice } from "@/lib/data/products";
 
@@ -69,6 +70,7 @@ function validate(f: Form, step: number): Errors {
 
 export default function PaiementPage() {
   const cart = useCart();
+  const { account } = useAccount();
   const router = useRouter();
   const reduce = useReducedMotion();
   const [step, setStep] = useState(0);
@@ -80,6 +82,17 @@ export default function PaiementPage() {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const mounted = useRef(false);
 
+
+  // Client connecté : coordonnées pré-remplies (modifiables)
+  useEffect(() => {
+    if (!account) return;
+    setForm((f) => ({
+      ...f,
+      prenom: f.prenom || account.firstName,
+      nom: f.nom || account.lastName,
+      email: f.email || account.email,
+    }));
+  }, [account]);
 
   useEffect(() => {
     if (!mounted.current) {
@@ -116,16 +129,19 @@ export default function PaiementPage() {
     }
     setPaying(true);
     window.setTimeout(() => {
+      const number = `SV-${Math.floor(10000 + Math.random() * 89999)}`;
+      saveOrder({
+        number,
+        date: new Date().toISOString(),
+        email: form.email.trim(),
+        total,
+        livraison: form.livraison,
+        items: cart.lines.map((l) => ({ slug: l.slug, name: l.product.name, qty: l.qty, price: l.product.price })),
+      });
       try {
         sessionStorage.setItem(
           "seve-last-order",
-          JSON.stringify({
-            number: `SV-${Math.floor(10000 + Math.random() * 89999)}`,
-            total,
-            email: form.email.trim(),
-            livraison: form.livraison,
-            items: cart.count,
-          })
+          JSON.stringify({ number, total, email: form.email.trim(), livraison: form.livraison, items: cart.count })
         );
       } catch {
         /* rien */

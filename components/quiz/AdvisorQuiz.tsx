@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, RotateCcw, Sparkles } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { ChatComposer, ChatMessages, useAdvisorChat } from "@/components/advisor/chat";
 
@@ -22,6 +23,19 @@ export function AdvisorQuiz() {
     // Garde le dernier message visible au-dessus de la zone de saisie collante
     endRef.current?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
   }, [chat.messages, started, reduce]);
+
+  // Question arrivant d'un autre écran (?q=…) : envoyée une seule fois, puis retirée de l'URL
+  const params = useSearchParams();
+  const router = useRouter();
+  const incoming = params.get("q");
+  const { hydrated, send } = chat;
+  const sentRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!hydrated || !incoming || sentRef.current === incoming) return;
+    sentRef.current = incoming;
+    router.replace("/quiz", { scroll: false });
+    void send(incoming);
+  }, [hydrated, incoming, router, send]);
 
   const pickFirst = (choice: string) => chat.send(`${FIRST_QUESTION} ${choice}`, choice);
 
@@ -76,7 +90,7 @@ export function AdvisorQuiz() {
             href="/boutique"
             className="group inline-flex min-h-11 items-center gap-1.5 font-semibold text-ink underline-offset-4 hover:underline"
           >
-            Voir toute la boutique
+            Voir tous nos produits
             <ArrowRight aria-hidden className="size-5 transition-transform group-hover:translate-x-1" strokeWidth={2} />
           </Link>
         </motion.div>

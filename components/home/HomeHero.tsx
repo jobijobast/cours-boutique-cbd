@@ -5,7 +5,7 @@ import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion
 import { useRef } from "react";
 import { ButtonLink } from "@/components/ui/Button";
 import { HeroSlideshow } from "./HeroSlideshow";
-import { useAdvisor } from "@/components/advisor/AdvisorProvider";
+import Link from "next/link";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -16,7 +16,6 @@ const fadeUp = (delay: number) => ({
 });
 
 export function HomeHero() {
-  const advisor = useAdvisor();
   const reduce = useReducedMotion();
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
@@ -61,14 +60,6 @@ export function HomeHero() {
             <ButtonLink href="/quiz" size="lg" icon={ArrowRight} iconPosition="end" className="w-full sm:w-auto">
               Trouver mon CBD en 1 min
             </ButtonLink>
-            <button
-              type="button"
-              onClick={() => advisor.open()}
-              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-pill border-2 border-action bg-surface px-6 font-semibold text-ink transition-colors duration-200 hover:bg-action-tint active:scale-[0.98] sm:w-auto"
-            >
-              <Sparkles aria-hidden className="size-5" strokeWidth={2} />
-              Conseiller IA
-            </button>
           </motion.div>
         </motion.div>
       </div>
@@ -77,7 +68,6 @@ export function HomeHero() {
 }
 
 export function AdvisorBanner() {
-  const advisor = useAdvisor();
   const prompts = ["Envie de fraîcheur cet après-midi", "Soirée cocooning, j'aime les fruits rouges", "Je débute, budget 15 €"];
   return (
     <div className="relative overflow-hidden rounded-lg border border-line bg-surface p-6 shadow-e1 md:p-10">
@@ -99,16 +89,13 @@ export function AdvisorBanner() {
         </p>
         <div className="flex flex-wrap gap-2">
           {prompts.map((p) => (
-            <motion.button
+            <Link
               key={p}
-              type="button"
-              onClick={() => advisor.open(p)}
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.97 }}
-              className="min-h-11 rounded-pill border-2 border-line bg-page px-4 text-[15px] font-medium text-ink transition-colors hover:border-action hover:bg-action-tint"
+              href={`/quiz?q=${encodeURIComponent(p)}`}
+              className="inline-flex min-h-11 items-center rounded-pill border-2 border-line bg-page px-4 text-[15px] font-medium text-ink transition-[colors,transform] hover:-translate-y-0.5 hover:border-action hover:bg-action-tint"
             >
               « {p} »
-            </motion.button>
+            </Link>
           ))}
         </div>
       </div>

@@ -45,7 +45,7 @@ export function ProductDetail({ slug }: { slug: string }) {
         <Breadcrumb
           items={[
             { href: "/", label: "Accueil" },
-            { href: "/boutique", label: "Boutique" },
+            { href: "/boutique", label: "Nos produits" },
             { label: product.name },
           ]}
         />

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AlertTriangle, ArrowUp, RotateCcw, ShoppingBag } from "lucide-react";
+import { AlertTriangle, ArrowRight, ArrowUp, RotateCcw, ShoppingBag } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Fragment, useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { ProductVisual, StockLine } from "@/components/shop/ProductBits";
@@ -90,11 +90,27 @@ export function ProductMini({ slug }: { slug: string }) {
   );
 }
 
+const ALLOWED_LINKS = ["/compte", "/panier", "/boutique", "/analyses", "/quiz", "/guide"];
+
 function RichText({ text }: { text: string }) {
-  const blocks = text.split(/(\[\[[a-z0-9-]+\]\])/g);
+  const blocks = text.split(/(\[\[[a-z0-9-]+\]\]|\[\[\s*lien\s*:[^\]]*\]\])/gi);
   return (
     <>
       {blocks.map((block, i) => {
+        const link = block.match(/^\[\[\s*lien\s*:\s*([^|\]]+?)\s*\|\s*([^\]]+?)\s*\]\]$/i);
+        if (link) {
+          const href = link[1].trim();
+          return ALLOWED_LINKS.includes(href) ? (
+            <Link
+              key={i}
+              href={href}
+              className="my-1.5 inline-flex min-h-11 items-center gap-1.5 rounded-pill border-2 border-action px-4 text-[14px] font-semibold text-ink transition-colors hover:bg-action-tint"
+            >
+              {link[2]}
+              <ArrowRight aria-hidden className="size-4" strokeWidth={2} />
+            </Link>
+          ) : null;
+        }
         const m = block.match(/^\[\[([a-z0-9-]+)\]\]$/);
         if (m) return getProduct(m[1]) ? <ProductMini key={i} slug={m[1]} /> : null;
         return block
@@ -127,7 +143,7 @@ function TypingDots() {
 
 /* ---------- Logique de conversation ---------- */
 
-export function useAdvisorChat(storageKey: string) {
+export function useAdvisorChat(storageKey: string, mode: "conseil" | "sav" = "conseil") {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [busy, setBusy] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -175,7 +191,7 @@ export function useAdvisorChat(storageKey: string) {
       const res = await fetch("/api/conseiller", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: history.map(({ role, content }) => ({ role, content })) }),
+        body: JSON.stringify({ mode, messages: history.map(({ role, content }) => ({ role, content })) }),
         signal: controller.signal,
       });
       if (!res.ok || !res.body) {
@@ -213,7 +229,7 @@ export function useAdvisorChat(storageKey: string) {
       setBusy(false);
       abortRef.current = null;
     }
-  }, []);
+  }, [mode]);
 
   const reset = useCallback(() => {
     abortRef.current?.abort();
@@ -359,11 +375,13 @@ export function ChatComposer({
   inputRef,
   placeholder = "Ex. : envie de douceur fruitée ce soir",
   id = "advisor-input",
+  note = "Conseils sur les goûts et formats uniquement, pas d'avis médical. Réservé aux adultes.",
 }: {
   chat: AdvisorChat;
   inputRef?: React.RefObject<HTMLTextAreaElement | null>;
   placeholder?: string;
   id?: string;
+  note?: string;
 }) {
   const [input, setInput] = useState("");
   const submit = (e?: FormEvent) => {
@@ -409,7 +427,7 @@ export function ChatComposer({
         </motion.button>
       </div>
       <p className="mt-2 text-center text-[12px] text-muted">
-        Conseils sur les goûts et formats uniquement, pas d&apos;avis médical. Réservé aux adultes.
+        {note}
       </p>
     </form>
   );

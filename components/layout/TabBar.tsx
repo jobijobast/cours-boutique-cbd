@@ -8,7 +8,7 @@ import { cn } from "@/lib/cn";
 import { isActive } from "./Header";
 
 const TABS = [
-  { href: "/boutique", label: "Boutique", icon: Store, match: ["/boutique", "/produit", "/analyses", "/guide"] },
+  { href: "/boutique", label: "Nos produits", icon: Store, match: ["/boutique", "/produit", "/analyses", "/guide"] },
   { href: "/quiz", label: "Quiz", icon: Compass, match: ["/quiz", "/resultats"] },
   { href: "/panier", label: "Panier", icon: ShoppingBag, match: ["/panier", "/paiement"] },
   { href: "/compte", label: "Compte", icon: User, match: ["/compte"] },

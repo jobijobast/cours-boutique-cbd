@@ -6,10 +6,11 @@ import { Search, ShoppingBag, User } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState, type FormEvent } from "react";
 import { useCart } from "@/lib/cart";
+import { useAccount } from "@/lib/account";
 import { cn } from "@/lib/cn";
 
 export const NAV = [
-  { href: "/boutique", label: "Boutique", match: ["/boutique", "/produit"] },
+  { href: "/boutique", label: "Nos produits", match: ["/boutique", "/produit"] },
   { href: "/quiz", label: "Trouver mon CBD", match: ["/quiz", "/resultats"] },
   { href: "/analyses", label: "Analyses labo", match: ["/analyses"] },
   { href: "/guide", label: "Le guide", match: ["/guide"] },
@@ -88,6 +89,25 @@ function SearchBox() {
   );
 }
 
+function AccountLink() {
+  const { account } = useAccount();
+  return (
+    <Link
+      href="/compte"
+      className="hidden min-h-11 items-center gap-2 rounded-pill px-3 text-[15px] font-medium text-ink transition-colors duration-200 hover:bg-action-tint lg:inline-flex"
+    >
+      {account ? (
+        <span aria-hidden className="grid size-7 place-items-center rounded-full bg-action text-[13px] font-bold text-on-action">
+          {account.firstName.charAt(0).toUpperCase()}
+        </span>
+      ) : (
+        <User aria-hidden className="size-5" strokeWidth={2} />
+      )}
+      {account ? account.firstName : "Compte"}
+    </Link>
+  );
+}
+
 export function Header() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
@@ -136,13 +156,7 @@ export function Header() {
         </nav>
         <div className="ml-auto flex items-center gap-2">
           <SearchBox />
-          <Link
-            href="/compte"
-            className="hidden min-h-11 items-center gap-2 rounded-pill px-3 text-[15px] font-medium text-ink transition-colors duration-200 hover:bg-action-tint lg:inline-flex"
-          >
-            <User aria-hidden className="size-5" strokeWidth={2} />
-            Compte
-          </Link>
+          <AccountLink />
           <CartPill />
         </div>
       </div>

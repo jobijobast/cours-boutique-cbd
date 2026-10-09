@@ -38,7 +38,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={`${fraunces.variable} ${dmSans.variable}`}>
-      <body className="min-h-dvh">
+      <body className="min-h-dvh" suppressHydrationWarning>
         <Providers>
           <a href="#contenu" className="skip-link rounded-pill bg-action px-4 py-2 font-semibold text-on-action">
             Aller au contenu

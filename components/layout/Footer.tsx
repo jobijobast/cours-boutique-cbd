@@ -18,8 +18,8 @@ export function Footer() {
             aux adultes, sans allégation de santé.
           </p>
         </div>
-        <nav aria-label="Boutique">
-          <h2 className="font-sans text-[14px] font-bold">Boutique</h2>
+        <nav aria-label="Nos produits">
+          <h2 className="font-sans text-[14px] font-bold">Nos produits</h2>
           <ul className="mt-2 flex flex-col">
             {[
               ["/boutique", "Tous les produits"],
