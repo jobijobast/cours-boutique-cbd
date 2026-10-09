@@ -91,6 +91,10 @@ export default function PaiementPage() {
       prenom: f.prenom || account.firstName,
       nom: f.nom || account.lastName,
       email: f.email || account.email,
+      tel: f.tel || account.phone || "",
+      adresse: f.adresse || [account.address, account.address2].filter(Boolean).join(", "),
+      cp: f.cp || account.postalCode || "",
+      ville: f.ville || account.city || "",
     }));
   }, [account]);
 

@@ -7,7 +7,22 @@ import { readStorage, removeStorage, writeStorage } from "./storage";
  * Comptes clients — prototype sans serveur : tout reste dans le navigateur (localStorage).
  * Aucun mot de passe n'est enregistré.
  */
-export type Account = { firstName: string; lastName: string; email: string; createdAt: string; newsletter: boolean };
+export type Account = {
+  title: "M" | "Mme" | "";
+  firstName: string;
+  lastName: string;
+  email: string;
+  /** JJ/MM/AAAA, facultative */
+  birthDate: string;
+  address: string;
+  address2: string;
+  postalCode: string;
+  city: string;
+  country: string;
+  phone: string;
+  newsletter: boolean;
+  createdAt: string;
+};
 
 export type Order = {
   number: string;
