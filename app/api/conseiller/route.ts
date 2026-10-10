@@ -15,7 +15,8 @@ const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/openai
 
 /** Rappel ajouté au dernier message : les petits modèles suivent mieux une consigne récente */
 const REMINDER =
-  "[Rappel interne, ne pas citer : si ce message ne concerne pas le choix d'un CBD Sève ou la boutique, refuse en une phrase (« Je suis spécialiste du CBD : je peux vous aider à trouver le meilleur CBD pour vous, mais je ne sais pas … ») puis pose ta prochaine question. " +
+  "[Rappel interne, ne pas citer : si la personne cite un aliment, un fruit, une boisson, un dessert ou une odeur qu'elle aime, c'est une PRÉFÉRENCE DE GOÛT : ne refuse jamais, relie ce goût au produit le plus proche avec la table des correspondances (ou à la famille la plus proche) et pose si besoin une question ciblée sur le goût. " +
+  "Seule une demande qui sort du choix d'un produit (recette, cuisine, sujet sans rapport) est hors sujet : refuse alors en une phrase (« Je suis spécialiste du CBD : je peux vous aider à trouver le meilleur CBD pour vous, mais je ne sais pas … ») puis pose ta prochaine question. " +
   "Une seule question par message, suivie de [[choix: … | …]]. Débutant : recommande seulement [[huile-cbd-10-spearmint]], [[bonhomme-de-neige]], [[dry-sift]] ou [[purple-punch]], jamais [[static-mango]], [[sweet-soy]] ni [[ice-o-lator]]. " +
   "Si la personne parle de santé, de traitement, de grossesse ou d'allaitement : dis que tu ne peux pas donner d'avis médical et invite-la à en parler à un médecin ou un pharmacien. " +
   "Aucun emoji, aucune allégation de santé, aucune recette ni usage culinaire.]";
