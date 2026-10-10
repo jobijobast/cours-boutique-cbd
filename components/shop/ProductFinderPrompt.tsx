@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { AGE_EVENT, AGE_KEY } from "@/components/layout/AgeGate";
-import { QUIZ_STEPS, saveAnswers, type QuizAnswers } from "@/lib/quiz";
+import { bestProductFor, QUIZ_STEPS, saveAnswers, type QuizAnswers } from "@/lib/quiz";
+import { useShop } from "./ShopProvider";
 import { readStorage } from "@/lib/storage";
 
 const DISMISS_KEY = "seve-finder-dismissed";
@@ -18,6 +19,7 @@ const DISMISS_KEY = "seve-finder-dismissed";
  */
 export function ProductFinderPrompt() {
   const router = useRouter();
+  const { addToCart } = useShop();
   const reduce = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
@@ -69,7 +71,9 @@ export function ProductFinderPrompt() {
     }
     saveAnswers(next);
     close();
-    router.push("/resultats");
+    const best = bestProductFor(next);
+    if (best) addToCart(best.slug, { recommended: true });
+    else router.push("/resultats");
   };
 
   return (
@@ -85,6 +89,9 @@ export function ProductFinderPrompt() {
       title={current.question}
     >
       <div className="flex flex-col gap-4">
+        {step === QUIZ_STEPS.length - 1 && (
+          <p className="text-caption">Dernière question : votre produit idéal sera ajouté au panier, modifiable à tout moment.</p>
+        )}
         <div className="h-1.5 overflow-hidden rounded-pill bg-accent" aria-hidden>
           <motion.div
             className="h-full rounded-pill bg-action"

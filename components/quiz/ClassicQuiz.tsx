@@ -7,9 +7,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
-import { QUIZ_STEPS, readAnswers, saveAnswers, type QuizAnswers } from "@/lib/quiz";
+import { bestProductFor, QUIZ_STEPS, readAnswers, saveAnswers, type QuizAnswers } from "@/lib/quiz";
+import { useShop } from "@/components/shop/ShopProvider";
 
 export function ClassicQuiz() {
+  const { addToCart } = useShop();
   const router = useRouter();
   const reduce = useReducedMotion();
   const [step, setStep] = useState(0);
@@ -42,8 +44,11 @@ export function ClassicQuiz() {
 
   const next = () => {
     if (!value) return;
-    if (last) router.push("/resultats");
-    else setStep((s) => s + 1);
+    if (!last) return setStep((s) => s + 1);
+    // Fin du questionnaire : le meilleur produit va directement au panier
+    const best = bestProductFor(answers);
+    if (best) addToCart(best.slug, { recommended: true });
+    else router.push("/resultats");
   };
 
   return (
@@ -71,7 +76,7 @@ export function ClassicQuiz() {
         />
       </div>
 
-      <AnimatePresence mode="wait" initial={false}>
+      <>
         <motion.form
           key={step}
           onSubmit={(e) => {
@@ -80,7 +85,6 @@ export function ClassicQuiz() {
           }}
           initial={reduce ? { opacity: 0 } : { opacity: 0, x: 24 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={reduce ? { opacity: 0 } : { opacity: 0, x: -24 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
           className="mt-8"
         >
@@ -169,14 +173,19 @@ export function ClassicQuiz() {
               disabled={!value}
               className="w-full sm:w-auto"
             >
-              {last ? "Voir mes résultats" : "Continuer"}
+              {last ? "Ajouter mon produit idéal au panier" : "Continuer"}
             </Button>
           </div>
+          {last && value && (
+            <p className="mt-3 text-center text-caption text-muted sm:text-right">
+              Le produit le plus adapté à vos réponses sera ajouté à votre panier. Vous pourrez le modifier ou le retirer.
+            </p>
+          )}
           {!value && (
             <p className="mt-3 text-center text-caption text-muted sm:text-right">Choisissez une réponse pour continuer.</p>
           )}
         </motion.form>
-      </AnimatePresence>
+      </>
     </div>
   );
 }

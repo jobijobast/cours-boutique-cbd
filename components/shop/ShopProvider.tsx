@@ -13,7 +13,13 @@ import { isEdgeActive } from "@/lib/demo";
 import { FreeShippingBar } from "./ProductBits";
 
 /** toast : force un toast (au lieu du panneau mobile), ex. depuis le conseiller */
-type AddOptions = { qty?: number; goToCart?: boolean; toast?: boolean };
+type AddOptions = {
+  qty?: number;
+  goToCart?: boolean;
+  toast?: boolean;
+  /** Produit choisi par un questionnaire : ajouté une seule fois, puis ouverture du panier (mobile compris) */
+  recommended?: boolean;
+};
 
 type Flight = { id: number; product: Product; from: { x: number; y: number }; to: { x: number; y: number } };
 
@@ -63,6 +69,21 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     (slug: string, opts: AddOptions = {}) => {
       const product = getProduct(slug);
       if (!product) return;
+      if (opts.recommended) {
+        const already = cart.lines.some((l) => l.slug === slug);
+        if (!already) {
+          cart.add(slug, 1);
+          fly(product);
+        }
+        router.push(`/panier?reco=${slug}`);
+        show({
+          type: "success",
+          message: already
+            ? `${product.name} est déjà dans votre panier`
+            : `Ajouté au panier · ${product.name}, choisi pour vous`,
+        });
+        return;
+      }
       const { added: n } = cart.add(slug, opts.qty ?? 1);
       if (n === 0) {
         show({ type: "error", message: `Maximum ${MAX_QTY} par commande atteint pour ${product.name}.` });

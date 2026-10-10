@@ -1,22 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Lock, ShoppingBag, Trash2 } from "lucide-react";
+import { ArrowRight, Lock, ShoppingBag, Sparkles, Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { QtyStepper } from "@/components/ui/QtyStepper";
 import { useToast } from "@/components/ui/Toast";
 import { FreeShippingBar, InlineAlert, ProductVisual } from "@/components/shop/ProductBits";
 import { useCart } from "@/lib/cart";
-import { formatPrice, MAX_QTY } from "@/lib/data/products";
+import { formatPrice, getProduct, MAX_QTY } from "@/lib/data/products";
 
 export default function PanierPage() {
   const cart = useCart();
   const { show } = useToast();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [justCleared, setJustCleared] = useState(false);
+  // Produit ajouté par un questionnaire (?reco=slug)
+  const [recoSlug, setRecoSlug] = useState<string | null>(null);
+  useEffect(() => {
+    setRecoSlug(new URLSearchParams(window.location.search).get("reco"));
+  }, []);
 
 
   const n = cart.count;
@@ -62,6 +67,23 @@ export default function PanierPage() {
 
       <div className="mt-6 grid items-start gap-6 lg:grid-cols-[1fr_380px]">
         <section aria-label="Articles du panier">
+          {recoSlug && cart.lines.some((l) => l.slug === recoSlug) && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-3 flex items-start gap-3 rounded-lg bg-accent p-4"
+            >
+              <Sparkles aria-hidden className="mt-0.5 size-5 shrink-0" strokeWidth={2} />
+              <p className="text-[15px]">
+                <span className="font-semibold">{getProduct(recoSlug)?.name}</span> a été choisi pour vous d&apos;après
+                vos réponses. Vous pouvez changer la quantité, le retirer ou{" "}
+                <Link href="/boutique" className="font-semibold underline underline-offset-4">
+                  voir nos autres produits
+                </Link>
+                .
+              </p>
+            </motion.div>
+          )}
           <ul className="flex flex-col gap-3">
             <AnimatePresence initial={false}>
               {cart.lines.map(({ slug, qty, product }) => (

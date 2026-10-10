@@ -41,14 +41,16 @@ Puis ouvrir http://localhost:3000.
 - `components/layout` — Header, TrustBanner, TabBar, Footer, AgeGate, CookieBanner
 - `lib/data/products.ts` — données fictives ; `lib/cart.tsx` — panier (contexte + localStorage)
 
-## Conseiller IA (Mistral)
+## Conseillers IA (Gemini, secours Mistral)
 
-- Clé dans `.env.local` (jamais commitée) : `MISTRAL_API_KEY=...` et `MISTRAL_MODEL=open-mistral-nemo` (voir `.env.example`).
-- Route serveur : `app/api/conseiller/route.ts` (flux texte, repli automatique entre modèles si le quota est atteint).
-- Prompt : `lib/advisor/prompt.ts`, généré à partir du catalogue (`lib/data/products.ts`) : ajouter un produit le rend connu de l'agent.
-- L'agent répond uniquement sur le choix d'un CBD Sève, pose une question à la fois avec des réponses rapides `[[choix: …]]`
-  et affiche des fiches produits avec `[[slug]]`. Aucune allégation de santé.
-- Accès : bouton flottant « Conseiller IA », page « Trouver mon CBD » (mode par défaut), bloc d'aide des résultats, accueil.
+- Clés dans `.env.local` (jamais commitée), voir `.env.example` :
+  `GEMINI_API_KEY` + `GEMINI_MODEL=gemini-2.5-flash` (principal), `MISTRAL_API_KEY` (secours facultatif).
+- Route serveur : `app/api/conseiller/route.ts` (API compatible OpenAI, flux texte, repli automatique si quota atteint).
+- Deux agents :
+  - **Conseil produit** (`lib/advisor/prompt.ts` + fiches de dégustation `lib/advisor/knowledge.ts`) sur « Trouver mon CBD ».
+    Une fois la recommandation faite, le produit est ajouté au panier (annulable) et la page panier s'ouvre.
+  - **Service après-vente** (`lib/advisor/sav.ts`) : bouton flottant « Service client ».
+- Les deux refusent le hors-sujet, n'émettent aucune allégation de santé et renvoient vers un professionnel pour toute question médicale.
 
 ## Diaporama d'accueil
 

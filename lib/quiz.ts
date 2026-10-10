@@ -1,4 +1,4 @@
-import type { Budget, Level, Moment } from "./data/products";
+import { catalog, rankProducts, type Budget, type Level, type Moment } from "./data/products";
 import { readStorage, writeStorage } from "./storage";
 
 export type QuizAnswers = { level?: Level; moment?: Moment; budget?: Budget };
@@ -54,4 +54,9 @@ export function recapOf(a: QuizAnswers) {
     const v = full[step.key as keyof QuizAnswers];
     return step.options.find((o) => o.value === v)?.recap ?? "";
   }).join(" · ");
+}
+
+/** Meilleur produit pour ces réponses : disponible, hors articles de collection */
+export function bestProductFor(a: QuizAnswers) {
+  return rankProducts(catalog, a).find((p) => p.stock !== "out" && p.category !== "gummies");
 }
